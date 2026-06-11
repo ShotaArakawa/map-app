@@ -33,6 +33,9 @@ const editingLocId = ref(null)
 const editLocName = ref('')
 const editLocCategoryId = ref(null)
 
+// スマホサイドバー開閉
+const sidebarOpen = ref(false)
+
 // 住所検索
 const searchQuery = ref('')
 const searchResults = ref([])
@@ -421,10 +424,14 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="layout">
+    <!-- スマホ：サイドバー背景オーバーレイ -->
+    <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false" />
+
     <!-- サイドバー -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="sidebar-header">
         <h2 class="sidebar-title">ピン一覧</h2>
+        <button class="close-btn" @click="sidebarOpen = false">✕</button>
       </div>
 
       <!-- 住所検索 -->
@@ -554,6 +561,7 @@ onBeforeUnmount(() => {
     <!-- 地図エリア -->
     <div class="map-area">
       <div ref="mapContainer" class="map" />
+      <button class="menu-btn" aria-label="メニューを開く" @click="sidebarOpen = true">☰</button>
       <button class="locate-btn" :disabled="isLocating" @click="jumpToCurrentLocation">
         {{ isLocating ? '取得中...' : '現在地' }}
       </button>
@@ -1006,5 +1014,157 @@ onBeforeUnmount(() => {
 
 .btn-secondary:hover {
   background: #f5f5f5;
+}
+
+/* ---- ハンバーガー / クローズボタン（PC では非表示） ---- */
+.menu-btn {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1001;
+  padding: 9px 13px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #bbb;
+  border-radius: 6px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.menu-btn:hover {
+  background: #f0f0f0;
+}
+
+.close-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #555;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.close-btn:hover {
+  background: #e0e0e0;
+}
+
+/* スマホ：背景オーバーレイ */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+
+/* ---- スマホ（〜767px）---- */
+@media (max-width: 767px) {
+  /* サイドバーを画面外に退避 → スライドイン */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* ヘッダーを flex にして ✕ ボタンを右寄せ */
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 12px 10px;
+  }
+
+  /* 地図エリアをフルスクリーンに */
+  .map-area {
+    width: 100%;
+    height: 100vh;
+  }
+
+  /* ☰ ボタンを表示 */
+  .menu-btn {
+    display: block;
+  }
+
+  /* ✕ ボタンを表示 */
+  .close-btn {
+    display: block;
+  }
+
+  /* 現在地ボタン：タップしやすいサイズに */
+  .locate-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+    bottom: 24px;
+    right: 12px;
+  }
+
+  /* サイドバー内フォント・余白の調整 */
+  .sidebar-title {
+    font-size: 16px;
+  }
+
+  .search-input {
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+
+  .search-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .tab-btn {
+    padding: 5px 12px;
+    font-size: 13px;
+  }
+
+  .tab-icon-btn {
+    font-size: 13px;
+    padding: 3px 7px;
+  }
+
+  .add-category-btn {
+    padding: 8px 0;
+    font-size: 14px;
+  }
+
+  .pin-item {
+    padding: 12px 14px;
+  }
+
+  .pin-name {
+    font-size: 14px;
+  }
+
+  .pin-coords {
+    font-size: 11px;
+  }
+
+  .text-input,
+  .select-input {
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 9px 18px;
+    font-size: 14px;
+  }
 }
 </style>
