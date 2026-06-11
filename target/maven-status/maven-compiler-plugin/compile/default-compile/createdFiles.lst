@@ -1,0 +1,13 @@
+com/portfolio/mapapp/model/CreateCategoryRequest.class
+com/portfolio/mapapp/model/Category.class
+com/portfolio/mapapp/Main.class
+com/portfolio/mapapp/filter/CorsFilter.class
+com/portfolio/mapapp/model/CreateLocationRequest.class
+com/portfolio/mapapp/db/LocationDao.class
+com/portfolio/mapapp/model/Location.class
+com/portfolio/mapapp/resource/CategoryResource.class
+com/portfolio/mapapp/config/ObjectMapperProvider.class
+com/portfolio/mapapp/db/CategoryDao.class
+com/portfolio/mapapp/model/UpdateLocationRequest.class
+com/portfolio/mapapp/db/Database.class
+com/portfolio/mapapp/resource/LocationResource.class

@@ -1,0 +1,16 @@
+services:
+  db:
+    # 通常のPostgreSQLではなく、地図機能(GIS)が追加された特別なイメージを使うよ！
+    image: postgis/postgis:latest
+    container_name: map_db
+    environment:
+      POSTGRES_USER: shota        # ユーザー名
+      POSTGRES_PASSWORD: password # パスワード
+      POSTGRES_DB: map_db         # データベース名
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
