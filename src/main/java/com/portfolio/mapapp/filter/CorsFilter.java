@@ -7,29 +7,32 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
-/**
- * 開発環境向けCORSフィルター。
- * Vite dev server (localhost:5174) からのリクエストを許可する。
- */
 @Provider
 public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
+    private static final String ALLOWED_ORIGIN = resolveOrigin();
+
+    private static String resolveOrigin() {
+        String origin = System.getenv("CORS_ORIGIN");
+        return (origin == null || origin.isBlank()) ? "http://localhost:5173" : origin;
+    }
+
     @Override
     public void filter(ContainerRequestContext request) {
-        // OPTIONSプリフライトリクエストは即座に200を返して終了
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            request.abortWith(Response.ok().build());
+            Response preflight = Response.ok()
+                    .header("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+                    .header("Access-Control-Allow-Headers", "Content-Type, Accept")
+                    .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                    .build();
+            request.abortWith(preflight);
         }
     }
 
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response) {
-        String origin = System.getenv("CORS_ORIGIN");
-        if (origin == null || origin.isBlank()) {
-            origin = "http://localhost:5173";
-        }
-        response.getHeaders().add("Access-Control-Allow-Origin", origin);
-        response.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, Accept");
-        response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.getHeaders().putSingle("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+        response.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type, Accept");
+        response.getHeaders().putSingle("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     }
 }
