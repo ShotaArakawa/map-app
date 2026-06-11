@@ -1060,6 +1060,8 @@ onBeforeUnmount(() => {
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   z-index: 999;
+  cursor: pointer; /* iOS Safari: div の click 発火に必要 */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ---- スマホ（〜767px）---- */
