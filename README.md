@@ -1,79 +1,120 @@
-# map-app
+# map-app 🗺️
 
-PostGIS の `locations` テーブルに対する REST API。
-**Jersey + 組み込み Grizzly HTTP サーバー + Jackson(JSON)** で構成し、`java -jar` 単体で起動できます。
+地図上でクリックした場所にピンを立てて保存・管理できるWebアプリです。
 
-## 構成
+## 使用技術
 
-| 技術 | 役割 |
+### バックエンド
+| 技術 | 用途 |
 |---|---|
-| Jersey 3.1 (JAX-RS) | REST フレームワーク |
-| Grizzly | 組み込みHTTPサーバー（外部のTomcat等が不要） |
-| Jackson | JSON ⇔ Javaオブジェクト変換 |
-| HikariCP + PostgreSQL JDBC | DB接続（コネクションプール） |
-| PostGIS | 座標を `geography(Point,4326)` で保存 |
+| Java 21 | メイン言語 |
+| Jersey 3 | REST APIフレームワーク |
+| Grizzly | 組み込みHTTPサーバー |
+| Jackson | JSON変換 |
+| HikariCP | DBコネクションプール |
+| PostgreSQL + PostGIS | 地理空間データの保存・検索 |
+| Docker | DB環境のコンテナ化 |
 
-## 必要なもの
+### フロントエンド
+| 技術 | 用途 |
+|---|---|
+| Vue 3 (Composition API) | UIフレームワーク |
+| Vite | ビルドツール |
+| Leaflet + OpenStreetMap | 地図表示 |
+| Nominatim API | 住所検索（ジオコーディング） |
 
+## 機能
+
+- 📍 **ピンの登録** - 地図をクリックして名前・カテゴリを入力してピンを立てる
+- ✏️ **ピンの編集** - 名前・カテゴリを後から変更できる
+- 🗑️ **ピンの削除** - ポップアップから削除できる
+- 📋 **サイドバー** - 登録したピンの一覧表示・クリックで地図移動
+- 🏷️ **カテゴリ管理** - カテゴリの追加・編集・削除。カテゴリごとにピンの色が変わる
+- 🔍 **住所検索** - Nominatim APIで住所・施設名を検索して地図移動
+- 📡 **半径検索** - 地図の中心から半径1km以内のピンを赤く表示
+- 📍 **現在地** - ブラウザのGeolocation APIで現在地に地図を移動
+
+## 起動方法
+
+### 必要なもの
+- Docker / Docker Compose
 - Java 21
-- 起動中の PostgreSQL/PostGIS（`docker compose up -d` で `map_db` が立つ）
-- テーブル作成: [db/create_locations.sql](db/create_locations.sql)
+- Node.js 18以上
 
-## ビルド & 起動
+### 手順
 
+**1. リポジトリをクローン**
 ```bash
-# DB を起動
+git clone https://github.com/ShotaArakawa/map-app.git
+cd map-app
+```
+
+**2. DBを起動**
+```bash
 docker compose up -d
+```
 
-# ビルド（fat jar を生成）
-./mvnw clean package
-
-# 起動
+**3. バックエンドを起動**
+```bash
 java -jar target/map-app.jar
-# もしくは: ./mvnw exec:java
 ```
 
-起動後のベースURL: `http://localhost:8080/api/`
-
-### 接続設定（環境変数で上書き可）
-
-| 変数 | 既定値 |
-|---|---|
-| `PORT` | `8080` |
-| `DB_HOST` | `localhost` |
-| `DB_PORT` | `5432` |
-| `DB_NAME` | `map_db` |
-| `DB_USER` | `shota` |
-| `DB_PASSWORD` | `password` |
-
-## API
-
-### `GET /api/locations` — 全件取得
+ソースから起動する場合：
 ```bash
-curl http://localhost:8080/api/locations
+mvn clean package -DskipTests && java -jar target/map-app.jar
 ```
 
-### `GET /api/locations/{id}` — 1件取得（無ければ 404）
+**4. フロントエンドを起動**
 ```bash
-curl http://localhost:8080/api/locations/1
+cd frontend
+npm install
+npm run dev
 ```
 
-### `POST /api/locations` — 新規登録（201 Created）
-```bash
-curl -X POST http://localhost:8080/api/locations \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"東京駅","latitude":35.6812,"longitude":139.7671}'
+**5. ブラウザで開く**
+```
+http://localhost:5173
 ```
 
-レスポンス例:
-```json
-{
-  "id": 4,
-  "name": "東京駅",
-  "latitude": 35.6812,
-  "longitude": 139.7671,
-  "createdAt": "2026-06-09T09:46:51.034510Z"
-}
-```
+## API一覧
 
-`latitude`(-90〜90) / `longitude`(-180〜180) の範囲外や `name` 未指定は 400 を返します。
+| メソッド | エンドポイント | 説明 |
+|---|---|---|
+| GET | /api/locations | 全ピン取得 |
+| GET | /api/locations/{id} | ピン1件取得 |
+| GET | /api/locations/nearby?lat=xx&lng=yy&radius=1000 | 半径検索 |
+| POST | /api/locations | ピン登録 |
+| PUT | /api/locations/{id} | ピン更新 |
+| DELETE | /api/locations/{id} | ピン削除 |
+| GET | /api/categories | カテゴリ一覧取得 |
+| POST | /api/categories | カテゴリ追加 |
+| PUT | /api/categories/{id} | カテゴリ更新（デフォルト2件は不可） |
+| DELETE | /api/categories/{id} | カテゴリ削除（デフォルト2件は不可） |
+
+## ディレクトリ構成
+
+```
+map-app/
+├── docker-compose.yml
+├── pom.xml
+├── src/main/java/com/portfolio/mapapp/
+│   ├── Main.java
+│   ├── config/
+│   ├── db/
+│   │   ├── Database.java
+│   │   ├── LocationDao.java
+│   │   └── CategoryDao.java
+│   ├── filter/
+│   │   └── CorsFilter.java
+│   ├── model/
+│   │   ├── Location.java
+│   │   ├── Category.java
+│   │   └── ...
+│   └── resource/
+│       ├── LocationResource.java
+│       └── CategoryResource.java
+└── frontend/
+    └── src/
+        └── components/
+            └── MapView.vue
+```
