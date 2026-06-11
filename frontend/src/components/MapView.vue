@@ -36,6 +36,9 @@ const editLocCategoryId = ref(null)
 // スマホサイドバー開閉
 const sidebarOpen = ref(false)
 
+// PCサイドバー開閉（デフォルト：開いている）
+const pcSidebarOpen = ref(true)
+
 // 住所検索
 const searchQuery = ref('')
 const searchResults = ref([])
@@ -428,9 +431,10 @@ onBeforeUnmount(() => {
     <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false" />
 
     <!-- サイドバー -->
-    <aside class="sidebar" :class="{ open: sidebarOpen }">
+    <aside class="sidebar" :class="{ open: sidebarOpen, 'pc-collapsed': !pcSidebarOpen }">
       <div class="sidebar-header">
         <h2 class="sidebar-title">ピン一覧</h2>
+        <button class="pc-collapse-btn" title="サイドバーを閉じる" @click="pcSidebarOpen = false">‹</button>
         <button class="close-btn" @click="sidebarOpen = false">✕</button>
       </div>
 
@@ -561,6 +565,7 @@ onBeforeUnmount(() => {
     <!-- 地図エリア -->
     <div class="map-area">
       <div ref="mapContainer" class="map" />
+      <button v-if="!pcSidebarOpen" class="pc-expand-btn" title="サイドバーを開く" @click="pcSidebarOpen = true">›</button>
       <button class="menu-btn" aria-label="メニューを開く" @click="sidebarOpen = true">☰</button>
       <button class="locate-btn" :disabled="isLocating" @click="jumpToCurrentLocation">
         {{ isLocating ? '取得中...' : '現在地' }}
@@ -628,12 +633,22 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.28s ease;
+}
+
+.sidebar.pc-collapsed {
+  width: 0;
+  border-right: none;
 }
 
 .sidebar-header {
-  padding: 14px 16px 10px;
+  padding: 14px 12px 10px;
   border-bottom: 1px solid #ddd;
   background: #f7f7f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 280px;
 }
 
 .sidebar-title {
@@ -1016,6 +1031,46 @@ onBeforeUnmount(() => {
   background: #f5f5f5;
 }
 
+/* ---- PC サイドバー折りたたみボタン（‹） ---- */
+.pc-collapse-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.pc-collapse-btn:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* ---- PC サイドバー展開ボタン（›） ---- */
+.pc-expand-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1001; /* Leaflet コントロール（z-index ~800）より上 */
+  padding: 8px 11px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #bbb;
+  border-radius: 6px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.15s;
+}
+
+.pc-expand-btn:hover {
+  background: #f0f0f0;
+}
+
 /* ---- ハンバーガー / クローズボタン（PC では非表示） ---- */
 .menu-btn {
   display: none;
@@ -1083,12 +1138,16 @@ onBeforeUnmount(() => {
     transform: translateX(0);
   }
 
-  /* ヘッダーを flex にして ✕ ボタンを右寄せ */
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 12px 10px;
+  /* PCボタンをスマホでは非表示 */
+  .pc-collapse-btn,
+  .pc-expand-btn {
+    display: none;
+  }
+
+  /* PC で折りたたまれていてもスマホでは width を維持 */
+  .sidebar.pc-collapsed {
+    width: 280px;
+    border-right: 1px solid #ddd;
   }
 
   /* 地図エリアをフルスクリーンに */
