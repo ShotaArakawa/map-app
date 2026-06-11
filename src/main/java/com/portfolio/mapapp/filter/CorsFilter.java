@@ -24,7 +24,11 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
 
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response) {
-        response.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+        String origin = System.getenv("CORS_ORIGIN");
+        if (origin == null || origin.isBlank()) {
+            origin = "http://localhost:5173";
+        }
+        response.getHeaders().add("Access-Control-Allow-Origin", origin);
         response.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, Accept");
         response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     }

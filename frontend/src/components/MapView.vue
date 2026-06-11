@@ -85,8 +85,8 @@ let map = null
 const markerMap = {}
 
 const OSAKA_STATION = [34.7024, 135.4959]
-const LOC_API = 'http://localhost:8080/api/locations'
-const CAT_API = 'http://localhost:8080/api/categories'
+const LOC_API = `${import.meta.env.VITE_API_BASE_URL}/locations`
+const CAT_API = `${import.meta.env.VITE_API_BASE_URL}/categories`
 
 const filteredLocations = computed(() =>
   filterCategoryId.value === null
