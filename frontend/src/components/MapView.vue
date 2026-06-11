@@ -649,6 +649,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   min-width: 280px;
+  box-sizing: border-box;
 }
 
 .sidebar-title {
@@ -1033,21 +1034,21 @@ onBeforeUnmount(() => {
 
 /* ---- PC サイドバー折りたたみボタン（‹） ---- */
 .pc-collapse-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
+  background: #f0f0f0;
+  border: 1.5px solid #ccc;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  color: #666;
-  padding: 3px 8px;
+  color: #444;
+  padding: 4px 10px;
   border-radius: 4px;
   flex-shrink: 0;
   transition: background 0.15s;
 }
 
 .pc-collapse-btn:hover {
-  background: #e0e0e0;
-  color: #333;
+  background: #ddd;
+  color: #111;
 }
 
 /* ---- PC サイドバー展開ボタン（›） ---- */
@@ -1094,19 +1095,20 @@ onBeforeUnmount(() => {
 
 .close-btn {
   display: none;
-  background: none;
-  border: none;
-  font-size: 18px;
+  background: #f0f0f0;
+  border: 1.5px solid #ccc;
+  font-size: 16px;
   cursor: pointer;
-  color: #555;
-  padding: 4px 8px;
+  color: #444;
+  padding: 5px 10px;
   border-radius: 4px;
   line-height: 1;
   flex-shrink: 0;
 }
 
 .close-btn:hover {
-  background: #e0e0e0;
+  background: #ddd;
+  color: #111;
 }
 
 /* スマホ：背景オーバーレイ */
@@ -1127,7 +1129,7 @@ onBeforeUnmount(() => {
     top: 0;
     left: 0;
     height: 100vh;
-    width: 280px;
+    width: min(280px, 85vw);
     z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.28s ease;
@@ -1146,7 +1148,7 @@ onBeforeUnmount(() => {
 
   /* PC で折りたたまれていてもスマホでは width を維持 */
   .sidebar.pc-collapsed {
-    width: 280px;
+    width: min(280px, 85vw);
     border-right: 1px solid #ddd;
   }
 
